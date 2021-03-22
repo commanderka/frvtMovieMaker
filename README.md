@@ -44,6 +44,7 @@ The script does the following:
 2. For each algorithm and edb a hitlist is generated for each movie frame and appended to this frame
 3. An mp4 movie is generated from the frames with the appended hitlists
 ### Docker Image
+* https://hub.docker.com/r/commanderka/frvtmoviemaker
 The docker image simplifies the installation process. It is based on Centos8.
 The only thing to be done is to copy the algorithms/edbs into the docker container and adapt the paths.
 ## Sample Result
