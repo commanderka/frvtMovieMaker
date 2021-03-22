@@ -3,7 +3,7 @@ import cv2
 import copy
 import os
 import numpy as np
-from frvtPythonWrapper.frvtPythonWrapper import FRVTWrapper,FRVTLibraryLoader,FRVTImage,FRVTMultiface
+from frvtPythonWrapper import FRVTWrapper,FRVTLibraryLoader,FRVTImage,FRVTMultiface
 import multiprocessing
 from multiprocessing import Process
 from typing import Sequence
@@ -255,8 +255,8 @@ if __name__ == '__main__':
     baseDir = "/mnt/d/coding/frvtBinaries/"
     basePath = "/mnt/d/coding/frvtMovieMaker"
 
-    referenceImagePath1 = "/mnt/d/coding/frvtMovieMaker/schwarzenegger.jpg"
-    referenceImagePath2 = "/mnt/d/coding/frvtMovieMaker/schwarzenegger2.jpg"
+    referenceImagePath1 = "schwarzenegger.jpg"
+    referenceImagePath2 = "schwarzenegger2.jpg"
 
     referenceImagePaths = [referenceImagePath1,referenceImagePath2]
 
