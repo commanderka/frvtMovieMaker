@@ -68,7 +68,7 @@ class MovieMaker:
 
         
 
-    def makeMovie(self,moviePath:str,outputFolder="/mnt/d/coding/frvtMovieMaker/"):
+    def makeMovie(self,moviePath:str,outputFolder="/frvtMovieMaker/"):
         self.movieOutputFolder = os.path.join(outputFolder,"outputMovie")
         self.frameOutputFolder =  os.path.join(outputFolder,"frames")
         self.templateOutputFolder = os.path.join(outputFolder,"templates")
@@ -251,9 +251,9 @@ class MovieMaker:
 
 
 if __name__ == '__main__':
-
-    baseDir = "/mnt/d/coding/frvtBinaries/"
-    basePath = "/mnt/d/coding/frvtMovieMaker"
+    #points to location of frvt implementation (containing lib and config dirs)
+    baseDir = "/frvtMovieMaker/"
+    basePath = "/frvtMovieMaker"
 
     referenceImagePath1 = "schwarzenegger.jpg"
     referenceImagePath2 = "schwarzenegger2.jpg"
