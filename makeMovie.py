@@ -269,7 +269,7 @@ class MovieMaker:
 
 if __name__ == '__main__':
     #points to location of frvt implementation (containing lib and config dirs)
-    baseDir = "/mnt/d/coding/frvtMovieMaker/algorithm"
+    baseDir = "/algorithm"
 
     referenceImagePath1 = "schwarzenegger.jpg"
     referenceImagePath2 = "schwarzenegger2.jpg"
@@ -280,5 +280,6 @@ if __name__ == '__main__':
     algoInfo1 = AlgorithmInfo("Dermalog008",os.path.join(baseDir,"edbs"),implDir = baseDir,libName = "libfrvt_1N_dermalog_008.so", enrollmentDir=os.path.join(baseDir,"enroll"))
     #gets a list of algorithm infos and a list of reference images
     myMoviemaker = MovieMaker([algoInfo1],referenceImagePaths)
-    myMoviemaker.makeMovie(moviePath,outputFolder="/mnt/d/coding/frvtMovieMaker")
+    #adapt output folder is necessary
+    myMoviemaker.makeMovie(moviePath,outputFolder="/frvtMovieMaker")
  
