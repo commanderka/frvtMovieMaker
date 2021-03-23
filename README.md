@@ -18,6 +18,7 @@ For each algorithm and each background database (edb) a hitlist of size 10 is sh
   * manifest name: [edbName].manifest
   * if multiple edb/manifests are found a hitlist is appended for each edb
 * Append the lib dir of each reference implementation to your LD_LIBRARY_PATH
+* Install python requirements listed in [requirements.txt](requirements.txt) 
 * Adapt the file makeMovie.py such that the paths to your reference implementations are correct. Example:
 ```python
     baseDir = "/frvtMovieMaker"
