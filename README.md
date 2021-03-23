@@ -48,11 +48,9 @@ The script does the following:
 The docker image simplifies the installation process. It is based on Centos8.
 The only thing to be done is to copy the algorithms/edbs into the docker container and adapt the paths.
 ## Sample Result
-### Sample Screens
-![Screen1](sampleScreens/00020.jpg)
-![Screen2](sampleScreens/00572.jpg)
 ### Sample Movies
-<iframe width="560" height="315" src="https://www.youtube.com/embed/iE3_zkyHcb8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+[<img src="sampleMovie/frvt.gif">](https://youtu.be/iE3_zkyHcb8)
+[<img src="sampleMovie/output.gif">](https://youtu.be/2dqpQK0V2HM)
 
 
 A generated movie using the latest DERMALOG algorithm and two different edbs (containg templates of random celebrities) can be found under sampleMovies.
