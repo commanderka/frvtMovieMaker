@@ -214,7 +214,7 @@ class MovieMaker:
                         currentFrameNumber +=1
         else:
             print("Using existing frame folder")
-        framesToCombine = [os.path.join(self.frameOutputFolder,x) for x in os.listdir(self.frameOutputFolder)]
+        framesToCombine = [os.path.join(self.frameOutputFolder,x) for x in sorted(os.listdir(self.frameOutputFolder))]
         newClip = ImageSequenceClip(framesToCombine,fps=clip.fps)
         newClip = newClip.set_audio(clip.audio)
         newClip.write_videofile(os.path.join(self.movieOutputFolder,"output.mp4"))
