@@ -51,15 +51,11 @@ The only thing to be done is to copy the algorithms/edbs into the docker contain
 ## Sample Result
 ### Reference images used
 The following images were used as reference images:
-<table>
-<tr>
-<td>
+<p float="left">
 <img src="schwarzenegger.jpg" width="480">
-</td>
-<td>
 <img src="schwarzenegger2.jpg" width="480">
-</td>
-</tr>
+</p>
+
 
 ### Sample Movies
 [<img src="sampleMovie/frvt.gif">](https://youtu.be/iE3_zkyHcb8)
