@@ -3,7 +3,7 @@
 The main purpose of this tool is to visualize the performance of different face recognition algorithms implementing the FRVT 1:N interface using publically available Youtube videos or self-provided video files.
 For each algorithm and each background database (edb) a hitlist of size 10 is shown under the video visualizing if one ore more of the reference templates are contained in this list.
 ## Setup
-* Clone the modified frvt repo
+* Clone the modified frvt repo https://github.com/commanderka/frvt
 * Build the projet frvtPlainCWrapper located under /frvt/1N/frvtPlainCWrapper
   * mkdir build
   * cd build
