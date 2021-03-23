@@ -52,6 +52,9 @@ The only thing to be done is to copy the algorithms/edbs into the docker contain
 ![Screen1](sampleScreens/00020.jpg)
 ![Screen2](sampleScreens/00572.jpg)
 ### Sample Movies
+<iframe width="560" height="315" src="https://www.youtube.com/embed/iE3_zkyHcb8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+
 A generated movie using the latest DERMALOG algorithm and two different edbs (containg templates of random celebrities) can be found under sampleMovies.
 
 ## Further work
