@@ -253,7 +253,6 @@ class MovieMaker:
 if __name__ == '__main__':
     #points to location of frvt implementation (containing lib and config dirs)
     baseDir = "/frvtMovieMaker/"
-    basePath = "/frvtMovieMaker"
 
     referenceImagePath1 = "schwarzenegger.jpg"
     referenceImagePath2 = "schwarzenegger2.jpg"
