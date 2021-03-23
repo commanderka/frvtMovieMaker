@@ -143,9 +143,15 @@ class MovieMaker:
                 frvtImage = FRVTImage(libraryLoader,referenceImage)
                 multiFace = FRVTMultiface(libraryLoader,frvtImage)
                 (retCode,templateData,isLeftAssigned,isRightAssigned,leftX,rightX,leftY,rightY) = wrapper.encodeTemplate(multiFace)
+                if retCode == 0:
+                    print("Reference image successfully enrolled")
+                else:
+                    print("Enrollment of reference image was not successful!")
+                    raise RuntimeError("Enrollment of reference image failed!")
                 referenceTemplates.append(templateData)
             edbs = self.findEdbsForAlgorithm(currentAlgoInfo)
             for currentEdb in edbs:
+                print(f"Processing edb {currentEdb}")
                 currentManifestFile = os.path.splitext(currentEdb)[0]+".manifest"
                 wrapper.finalizeEnrolment(currentAlgoInfo.configDir,currentAlgoInfo.enrollmentDir,currentEdb,currentManifestFile, 0)
                 wrapper.initializeIdentification(currentAlgoInfo.configDir,currentAlgoInfo.enrollmentDir)
