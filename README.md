@@ -64,6 +64,10 @@ The following images were used as reference images:
 
 A generated movie using the latest DERMALOG algorithm and two different edbs (containg templates of random celebrities) can be found under sampleMovies.
 
+
+## Donation
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/donate?hosted_button_id=6PB4BAU5XWL3U)
+
 ## Further work
 * Add additional screens for a brief performance overview of the algorithms
 
