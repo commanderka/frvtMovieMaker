@@ -52,6 +52,7 @@ def codeTemplatesForSubClip(moviePath,startTime,endTime,fps,algoInfo:AlgorithmIn
 
 class MovieMaker:
     def __init__(self,algoInfos: Sequence[AlgorithmInfo], referenceImagePaths: Sequence[str], inputFolder = "movieInput"):
+        self.resizedReferenceImages = False
         self.inputFolder = inputFolder
         if not os.path.exists(self.inputFolder):
             os.makedirs(self.inputFolder)
@@ -68,7 +69,7 @@ class MovieMaker:
 
         
 
-    def makeMovie(self,moviePath:str,outputFolder="/frvtMovieMaker/"):
+    def makeMovie(self,moviePath:str,outputFolder="/frvtMovieMaker/",deleteIntermediateFiles=True):
         self.movieOutputFolder = os.path.join(outputFolder,"outputMovie")
         if not os.path.exists(self.movieOutputFolder):
             os.makedirs(self.movieOutputFolder)
@@ -217,9 +218,10 @@ class MovieMaker:
         newClip = ImageSequenceClip(framesToCombine,fps=clip.fps)
         newClip = newClip.set_audio(clip.audio)
         newClip.write_videofile(os.path.join(self.movieOutputFolder,"output.mp4"))
-        shutil.rmtree(self.frameOutputFolder)
-        shutil.rmtree(self.templateOutputFolder)
-        shutil.rmtree(self.inputFolder)
+        if deleteIntermediateFiles:
+            shutil.rmtree(self.frameOutputFolder)
+            shutil.rmtree(self.templateOutputFolder)
+            shutil.rmtree(self.inputFolder)
         
     def drawHitListToImage(self,image,hitlist,algoName, edbName):
        
@@ -241,8 +243,11 @@ class MovieMaker:
         hitlistImageWidth = int((enlargedImage.shape[1] - 10*spacing)/10)
         hitlistImageHeight = min(130,hitlistImageWidth)
 
-        for key in self.referenceImageDict:
-            self.referenceImageDict[key] = cv2.resize(self.referenceImageDict[key], (hitlistImageWidth,hitlistImageHeight))
+        #resize reference images for display purposes if this has not been done yet
+        if not self.resizedReferenceImages:
+            for key in self.referenceImageDict:
+                self.referenceImageDict[key] = cv2.resize(self.referenceImageDict[key], (hitlistImageWidth,hitlistImageHeight))
+            self.resizedReferenceImages = True
 
         placeholder_resized = cv2.resize(self.placeholderImage, (hitlistImageWidth,hitlistImageHeight))
 
@@ -264,7 +269,7 @@ class MovieMaker:
 
 if __name__ == '__main__':
     #points to location of frvt implementation (containing lib and config dirs)
-    baseDir = "/frvtMovieMaker/"
+    baseDir = "/mnt/d/coding/frvtMovieMaker/algorithm"
 
     referenceImagePath1 = "schwarzenegger.jpg"
     referenceImagePath2 = "schwarzenegger2.jpg"
@@ -275,5 +280,5 @@ if __name__ == '__main__':
     algoInfo1 = AlgorithmInfo("Dermalog008",os.path.join(baseDir,"edbs"),implDir = baseDir,libName = "libfrvt_1N_dermalog_008.so", enrollmentDir=os.path.join(baseDir,"enroll"))
     #gets a list of algorithm infos and a list of reference images
     myMoviemaker = MovieMaker([algoInfo1],referenceImagePaths)
-    myMoviemaker.makeMovie(moviePath)
+    myMoviemaker.makeMovie(moviePath,outputFolder="/mnt/d/coding/frvtMovieMaker")
  
