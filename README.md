@@ -16,6 +16,7 @@ For each algorithm and each background database (edb) a hitlist of size 10 is sh
 * copy edbs for each reference implementation to the folder of the implementation. The following naming scheme is required for each edb/manifest:
   * edb name: [edbName].edb
   * manifest name: [edbName].manifest
+  * if multiple edb/manifests are found a hitlist is appended for each edb
 * Append the lib dir of each reference implementation to your LD_LIBRARY_PATH
 * Adapt the file makeMovie.py such that the paths to your reference implementations are correct. Example:
 ```python
@@ -48,6 +49,11 @@ The script does the following:
 The docker image simplifies the installation process. It is based on Centos8.
 The only thing to be done is to copy the algorithms/edbs into the docker container and adapt the paths.
 ## Sample Result
+### Reference images used
+The following images were used as reference images:
+![Reference image 1](schwarzenegger.jpg)
+![Reference image 2](schwarzenegger2.jpg)
+
 ### Sample Movies
 [<img src="sampleMovie/frvt.gif">](https://youtu.be/iE3_zkyHcb8)
 [<img src="sampleMovie/output.gif">](https://youtu.be/2dqpQK0V2HM)
