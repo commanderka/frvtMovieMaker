@@ -14,8 +14,8 @@ For each algorithm and each background database (edb) a hitlist of size 10 is sh
 * Checkout the frvtMovieMaker repo
 * copy the reference implementations you want to benchmark to a folder of your choice and extract them
 * copy edbs for each reference implementation to the folder of the implementation. The following naming scheme is required for each edb/manifest:
-  * edb name: <edbName>.edb
-  * manifest name: <edbName>.manifest
+  * edb name: [edbName].edb
+  * manifest name: [edbName].manifest
 * Append the lib dir of each reference implementation to your LD_LIBRARY_PATH
 * Adapt the file makeMovie.py such that the paths to your reference implementations are correct. Example:
 ```python
