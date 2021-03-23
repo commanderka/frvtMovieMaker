@@ -17,3 +17,4 @@ RUN make
 ENV LD_LIBRARY_PATH=/frvt/1N/frvtPlainCWrapper/build
 ENV PYTHONPATH=/frvt/1N/frvtPythonWrapper
 WORKDIR /frvtMovieMaker
+CMD cd /frvt && git pull && cd /frvtMovieMaker && git pull && bash
