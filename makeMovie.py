@@ -73,15 +73,8 @@ class MovieMaker:
 
     def makeMovie(self,moviePath:str,outputFolder="/frvtMovieMaker/"):
         self.movieOutputFolder = os.path.join(outputFolder,"outputMovie")
-        self.frameOutputFolder =  os.path.join(outputFolder,"frames")
-        self.templateOutputFolder = os.path.join(outputFolder,"templates")
-        if not os.path.exists(self.frameOutputFolder):
-            os.makedirs(self.frameOutputFolder)
         if not os.path.exists(self.movieOutputFolder):
             os.makedirs(self.movieOutputFolder)
-        if not os.path.exists(self.templateOutputFolder):
-            os.makedirs(self.templateOutputFolder)
-         
 
         cpuCount = multiprocessing.cpu_count()
 
@@ -112,104 +105,114 @@ class MovieMaker:
         secondsPerWorker = clip.duration/cpuCount
 
 
-        #code templates by multiprocessing
-        for currentAlgoInfo in self.algoInfos:
-            startTime = 0
-            processList = []
-            for currentWokerIndex in range(cpuCount):
-                endTime = min(startTime + secondsPerWorker,clip.duration)
-                #codeTemplatesForSubClip(moviePath,startTime,endTime,clip.fps,self.libdir,self.libname)
-                p = Process(target = codeTemplatesForSubClip, args =(moviePath,startTime,endTime,clip.fps,currentAlgoInfo), kwargs={"templateOutputFolder":self.templateOutputFolder})
-                p.start()
-                print(f"Starting worker with start time {startTime} and end time {endTime}")
-                processList.append(p)
-                startTime = endTime
-        for currentProcess in processList:
-            currentProcess.join()
+        self.templateOutputFolder = os.path.join(outputFolder,"templates")
+        if not os.path.exists(self.templateOutputFolder):
+            os.makedirs(self.templateOutputFolder)
+            #code templates by multiprocessing
+            for currentAlgoInfo in self.algoInfos:
+                startTime = 0
+                processList = []
+                for currentWokerIndex in range(cpuCount):
+                    endTime = min(startTime + secondsPerWorker,clip.duration)
+                    #codeTemplatesForSubClip(moviePath,startTime,endTime,clip.fps,self.libdir,self.libname)
+                    p = Process(target = codeTemplatesForSubClip, args =(moviePath,startTime,endTime,clip.fps,currentAlgoInfo), kwargs={"templateOutputFolder":self.templateOutputFolder})
+                    p.start()
+                    print(f"Starting worker with start time {startTime} and end time {endTime}")
+                    processList.append(p)
+                    startTime = endTime
+            for currentProcess in processList:
+                currentProcess.join()
+        else:
+            print("Using existing template folder")
+        
 
-        self.referenceImageDict = {}
-        for referenceImageIndex,referenceImagePath in enumerate(self.referenceImagePaths):
-            referenceImage = cv2.imread(referenceImagePath)
-            self.referenceImageDict[f"ref_{referenceImageIndex}"] = referenceImage
+        self.frameOutputFolder =  os.path.join(outputFolder,"frames")
+        if not os.path.exists(self.frameOutputFolder):
+            os.makedirs(self.frameOutputFolder)
+            self.referenceImageDict = {}
+            for referenceImageIndex,referenceImagePath in enumerate(self.referenceImagePaths):
+                referenceImage = cv2.imread(referenceImagePath)
+                self.referenceImageDict[f"ref_{referenceImageIndex}"] = referenceImage
 
 
-        #iterate over all algorithms and edbs and generate a hitlist for each algo/edb setting
-        for currentAlgoIndex,currentAlgoInfo in enumerate(self.algoInfos):
-            currentEyeColor = eyeColors[currentAlgoIndex]
-            templateFolderForAlgo = os.path.join(self.templateOutputFolder,currentAlgoInfo.algorithmName)
-            libraryLoader = FRVTLibraryLoader()
-            libraryLoader.loadLibrary(currentAlgoInfo.libName,libDir=currentAlgoInfo.libDir)
-            wrapper = FRVTWrapper(libraryLoader)
-            wrapper.initializeTemplateCreation()
-            referenceTemplates = []
-            for referenceImage in self.referenceImageDict.values():
-                frvtImage = FRVTImage(libraryLoader,referenceImage)
-                multiFace = FRVTMultiface(libraryLoader,frvtImage)
-                (retCode,templateData,isLeftAssigned,isRightAssigned,leftX,rightX,leftY,rightY) = wrapper.encodeTemplate(multiFace)
-                if retCode == 0:
-                    print("Reference image successfully enrolled")
-                else:
-                    print("Enrollment of reference image was not successful!")
-                    raise RuntimeError("Enrollment of reference image failed!")
-                referenceTemplates.append(templateData)
-            edbs = self.findEdbsForAlgorithm(currentAlgoInfo)
-            for currentEdb in edbs:
-                print(f"Processing edb {currentEdb}")
-                currentManifestFile = os.path.splitext(currentEdb)[0]+".manifest"
-                wrapper.finalizeEnrolment(currentAlgoInfo.configDir,currentAlgoInfo.enrollmentDir,currentEdb,currentManifestFile, 0)
-                wrapper.initializeIdentification(currentAlgoInfo.configDir,currentAlgoInfo.enrollmentDir)
-                for templateIndex,templateData in enumerate(referenceTemplates):
-                    wrapper.insertTemplate(templateData, f"ref_{templateIndex}")
-                self.placeholderImage = cv2.imread("placeholder.jpg")
-
-                currentFrameNumber = 0
-                for currentFrame in clip.iter_frames(clip.fps):
-                    currentFrameNumberAsString = str(currentFrameNumber).zfill(5)
-                    frameName = os.path.join(self.frameOutputFolder,currentFrameNumberAsString+".jpg")
-                    templateFile = currentFrameNumberAsString+".template"
-                    templateFile_full = os.path.join(templateFolderForAlgo,templateFile)
-                    eyesFile = currentFrameNumberAsString + ".eyes"
-                    eyesFile_full = os.path.join(templateFolderForAlgo,eyesFile)
-                    copiedFrame = copy.copy(currentFrame)
-                    copiedFrame_bgr = copiedFrame[:,:,::-1]
-                    copiedFrame_bgr = np.array(copiedFrame_bgr)
-                    if os.path.exists(templateFile_full):
-                        templateData = np.fromfile(templateFile_full,dtype=np.int8)
-                        
-
-                        candidateList,decisionValue = wrapper.identifyTemplate(templateData,10)
-                        #check if already a frame exists and add the new hitlist in this case
-                       
-                        if os.path.exists(frameName):
-                            frameToUse = cv2.imread(frameName)
-                            imageWithHitList = self.drawHitListToImage(frameToUse,candidateList.toList(),currentAlgoInfo.algorithmName,currentEdb)
-                        else:
-                            imageWithHitList = self.drawHitListToImage(copiedFrame_bgr,candidateList.toList(),currentAlgoInfo.algorithmName,currentEdb)
-
-                        eyeFileHandle = open(eyesFile_full,"r")
-                        firstLine = eyeFileHandle.readline()
-                        firstLine_splitted = firstLine.split(" ")
-                        eyeFileHandle.close()
-                        #draw eyes if they are assigned
-                        if bool(firstLine_splitted[0]):
-                            leftX = int(firstLine_splitted[2])
-                            rightX = int(firstLine_splitted[3])
-                            leftY = int(firstLine_splitted[4])
-                            rightY = int(firstLine_splitted[5])
-                            imageWithHitList = cv2.circle(imageWithHitList, (leftX,leftY), 3,  currentEyeColor,-1)
-                            imageWithHitList = cv2.circle(imageWithHitList, (rightX,rightY), 3,  currentEyeColor,-1)
-                        #save frame
-                        cv2.imwrite(frameName,imageWithHitList)
+            #iterate over all algorithms and edbs and generate a hitlist for each algo/edb setting
+            for currentAlgoIndex,currentAlgoInfo in enumerate(self.algoInfos):
+                currentEyeColor = eyeColors[currentAlgoIndex]
+                templateFolderForAlgo = os.path.join(self.templateOutputFolder,currentAlgoInfo.algorithmName)
+                libraryLoader = FRVTLibraryLoader()
+                libraryLoader.loadLibrary(currentAlgoInfo.libName,libDir=currentAlgoInfo.libDir)
+                wrapper = FRVTWrapper(libraryLoader)
+                wrapper.initializeTemplateCreation()
+                referenceTemplates = []
+                for referenceImage in self.referenceImageDict.values():
+                    frvtImage = FRVTImage(libraryLoader,referenceImage)
+                    multiFace = FRVTMultiface(libraryLoader,frvtImage)
+                    (retCode,templateData,isLeftAssigned,isRightAssigned,leftX,rightX,leftY,rightY) = wrapper.encodeTemplate(multiFace)
+                    if retCode == 0:
+                        print("Reference image successfully enrolled")
                     else:
-                        if os.path.exists(frameName):
-                            frameToUse = cv2.imread(frameName)
-                            enlargedImage = cv2.copyMakeBorder(frameToUse, 0, 200, 0, 0, cv2.BORDER_CONSTANT, None, (255,255,255))
-                        else:
-                            enlargedImage = cv2.copyMakeBorder(copiedFrame_bgr, 0, 200, 0, 0, cv2.BORDER_CONSTANT, None, (255,255,255))
-                        #save frame
-                        cv2.imwrite(frameName,enlargedImage)
-                    currentFrameNumber +=1
+                        print("Enrollment of reference image was not successful!")
+                        raise RuntimeError("Enrollment of reference image failed!")
+                    referenceTemplates.append(templateData)
+                edbs = self.findEdbsForAlgorithm(currentAlgoInfo)
+                for currentEdb in edbs:
+                    print(f"Processing edb {currentEdb}")
+                    currentManifestFile = os.path.splitext(currentEdb)[0]+".manifest"
+                    wrapper.finalizeEnrolment(currentAlgoInfo.configDir,currentAlgoInfo.enrollmentDir,currentEdb,currentManifestFile, 0)
+                    wrapper.initializeIdentification(currentAlgoInfo.configDir,currentAlgoInfo.enrollmentDir)
+                    for templateIndex,templateData in enumerate(referenceTemplates):
+                        wrapper.insertTemplate(templateData, f"ref_{templateIndex}")
+                    self.placeholderImage = cv2.imread("placeholder.jpg")
 
+                    currentFrameNumber = 0
+                    for currentFrame in clip.iter_frames(clip.fps):
+                        currentFrameNumberAsString = str(currentFrameNumber).zfill(5)
+                        frameName = os.path.join(self.frameOutputFolder,currentFrameNumberAsString+".jpg")
+                        templateFile = currentFrameNumberAsString+".template"
+                        templateFile_full = os.path.join(templateFolderForAlgo,templateFile)
+                        eyesFile = currentFrameNumberAsString + ".eyes"
+                        eyesFile_full = os.path.join(templateFolderForAlgo,eyesFile)
+                        copiedFrame = copy.copy(currentFrame)
+                        copiedFrame_bgr = copiedFrame[:,:,::-1]
+                        copiedFrame_bgr = np.array(copiedFrame_bgr)
+                        if os.path.exists(templateFile_full):
+                            templateData = np.fromfile(templateFile_full,dtype=np.int8)
+                            
+
+                            candidateList,decisionValue = wrapper.identifyTemplate(templateData,10)
+                            #check if already a frame exists and add the new hitlist in this case
+                        
+                            if os.path.exists(frameName):
+                                frameToUse = cv2.imread(frameName)
+                                imageWithHitList = self.drawHitListToImage(frameToUse,candidateList.toList(),currentAlgoInfo.algorithmName,currentEdb)
+                            else:
+                                imageWithHitList = self.drawHitListToImage(copiedFrame_bgr,candidateList.toList(),currentAlgoInfo.algorithmName,currentEdb)
+
+                            eyeFileHandle = open(eyesFile_full,"r")
+                            firstLine = eyeFileHandle.readline()
+                            firstLine_splitted = firstLine.split(" ")
+                            eyeFileHandle.close()
+                            #draw eyes if they are assigned
+                            if bool(firstLine_splitted[0]):
+                                leftX = int(firstLine_splitted[2])
+                                rightX = int(firstLine_splitted[3])
+                                leftY = int(firstLine_splitted[4])
+                                rightY = int(firstLine_splitted[5])
+                                imageWithHitList = cv2.circle(imageWithHitList, (leftX,leftY), 3,  currentEyeColor,-1)
+                                imageWithHitList = cv2.circle(imageWithHitList, (rightX,rightY), 3,  currentEyeColor,-1)
+                            #save frame
+                            cv2.imwrite(frameName,imageWithHitList)
+                        else:
+                            if os.path.exists(frameName):
+                                frameToUse = cv2.imread(frameName)
+                                enlargedImage = cv2.copyMakeBorder(frameToUse, 0, 200, 0, 0, cv2.BORDER_CONSTANT, None, (255,255,255))
+                            else:
+                                enlargedImage = cv2.copyMakeBorder(copiedFrame_bgr, 0, 200, 0, 0, cv2.BORDER_CONSTANT, None, (255,255,255))
+                            #save frame
+                            cv2.imwrite(frameName,enlargedImage)
+                        currentFrameNumber +=1
+        else:
+            print("Using existing frame folder")
         framesToCombine = [os.path.join(self.frameOutputFolder,x) for x in os.listdir(self.frameOutputFolder)]
         newClip = ImageSequenceClip(framesToCombine,fps=clip.fps)
         newClip = newClip.set_audio(clip.audio)
