@@ -29,9 +29,6 @@ def codeTemplatesForSubClip(moviePath,startTime,endTime,fps,algoInfo:AlgorithmIn
         os.makedirs(templateOutputPathForAlgorithm)
     libraryLoader = FRVTLibraryLoader()
     libraryLoader.loadLibrary(algoInfo.libName,libDir=algoInfo.libDir)
-    if not os.path.exists(algoInfo.enrollmentDir):
-        print("Enrollment dir does not exist. Creating it...")
-        os.makedirs(algoInfo.enrollmentDir)
     wrapper = FRVTWrapper(libraryLoader)
     wrapper.initializeTemplateCreation()
     clip = VideoFileClip(moviePath).subclip(startTime,endTime)
@@ -125,7 +122,6 @@ class MovieMaker:
         else:
             print("Using existing template folder")
         
-
         self.frameOutputFolder =  os.path.join(outputFolder,"frames")
         if not os.path.exists(self.frameOutputFolder):
             os.makedirs(self.frameOutputFolder)
@@ -158,8 +154,13 @@ class MovieMaker:
                 for currentEdb in edbs:
                     print(f"Processing edb {currentEdb}")
                     currentManifestFile = os.path.splitext(currentEdb)[0]+".manifest"
-                    wrapper.finalizeEnrolment(currentAlgoInfo.configDir,currentAlgoInfo.enrollmentDir,currentEdb,currentManifestFile, 0)
-                    wrapper.initializeIdentification(currentAlgoInfo.configDir,currentAlgoInfo.enrollmentDir)
+                    if not os.path.exists(currentAlgoInfo.enrollmentDir):
+                        print("Enrollment dir does not exist. Creating it...")
+                        os.makedirs(currentAlgoInfo.enrollmentDir)
+                    retCode = wrapper.finalizeEnrolment(currentAlgoInfo.configDir,currentAlgoInfo.enrollmentDir,currentEdb,currentManifestFile, 0)
+                    print(f"Finalize enrollment returned ret code {retCode}")
+                    retCode = wrapper.initializeIdentification(currentAlgoInfo.configDir,currentAlgoInfo.enrollmentDir)
+                    print(f"Initialize identification returned ret code {retCode}")
                     for templateIndex,templateData in enumerate(referenceTemplates):
                         wrapper.insertTemplate(templateData, f"ref_{templateIndex}")
                     self.placeholderImage = cv2.imread("placeholder.jpg")
@@ -177,7 +178,6 @@ class MovieMaker:
                         copiedFrame_bgr = np.array(copiedFrame_bgr)
                         if os.path.exists(templateFile_full):
                             templateData = np.fromfile(templateFile_full,dtype=np.int8)
-                            
 
                             candidateList,decisionValue = wrapper.identifyTemplate(templateData,10)
                             #check if already a frame exists and add the new hitlist in this case
