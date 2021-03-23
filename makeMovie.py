@@ -29,6 +29,9 @@ def codeTemplatesForSubClip(moviePath,startTime,endTime,fps,algoInfo:AlgorithmIn
         os.makedirs(templateOutputPathForAlgorithm)
     libraryLoader = FRVTLibraryLoader()
     libraryLoader.loadLibrary(algoInfo.libName,libDir=algoInfo.libDir)
+    if not os.path.exists(algoInfo.enrollmentDir):
+        print("Enrollment dir does not exist. Creating it...")
+        os.makedirs(algoInfo.enrollmentDir)
     wrapper = FRVTWrapper(libraryLoader)
     wrapper.initializeTemplateCreation()
     clip = VideoFileClip(moviePath).subclip(startTime,endTime)
