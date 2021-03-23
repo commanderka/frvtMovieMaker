@@ -59,7 +59,6 @@ The following images were used as reference images:
 
 
 ### Sample Movies
-[<img src="sampleMovie/frvt.gif">](https://youtu.be/iE3_zkyHcb8)
 [<img src="sampleMovie/output.gif">](https://youtu.be/2dqpQK0V2HM)
 
 
