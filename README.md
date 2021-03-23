@@ -52,8 +52,8 @@ The only thing to be done is to copy the algorithms/edbs into the docker contain
 ### Reference images used
 The following images were used as reference images:
 <p float="left">
-<img src="schwarzenegger.jpg" width="480">
-<img src="schwarzenegger2.jpg" width="480">
+<img src="schwarzenegger.jpg" width="200">
+<img src="schwarzenegger2.jpg" width="200">
 </p>
 
 
